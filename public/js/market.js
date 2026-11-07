@@ -142,9 +142,9 @@ const Market = {
         if (!this.filteredTickers || this.filteredTickers.length === 0) {
             const filterNames = {
                 all: 'All', trending: 'Trending', gainers: 'Top Gainers', losers: 'Top Losers',
-                volume: 'Active by Volume', value: 'Active by Value', '52high': '52W High', '52low': '52W Low'
+                volume: 'Active by Volume', value: 'Active by Value', '52high': 'Near high', '52low': 'Near low'
             };
-            container.innerHTML = `<div class="empty-state"><div class="icon">📊</div><div class="title">No Results</div><div class="desc">No cryptos found for "${filterNames[this.currentFilter] || this.currentFilter}"${this.searchQuery ? ` matching "${this.searchQuery}"` : ''}</div></div>`;
+            container.innerHTML = `<div class="empty-state"><div class="empty-symbol">◇</div><div class="title">No Results</div><div class="desc">No cryptos found for "${filterNames[this.currentFilter] || this.currentFilter}"${this.searchQuery ? ` matching "${this.searchQuery}"` : ''}</div></div>`;
             return;
         }
 
@@ -266,7 +266,7 @@ const Market = {
 
     showEmpty(msg) {
         const container = document.getElementById('marketList');
-        container.innerHTML = `<div class="empty-state"><div class="icon">📊</div><div class="title">No Market Data</div><div class="desc">${msg}</div></div>`;
+        container.innerHTML = `<div class="empty-state"><div class="empty-symbol">◇</div><div class="title">No Market Data</div><div class="desc">${msg}</div></div>`;
     },
 
     destroy() {

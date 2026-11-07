@@ -109,7 +109,7 @@ const Trades = {
         const trades = this.getFilteredTrades();
 
         if (trades.length === 0) {
-            container.innerHTML = `<div class="empty-state"><div class="icon">📊</div><div class="title">No Trades</div><div class="desc">${this.filter === 'all' ? 'Bot will record all trades here' : `No ${this.filter} trades found`}</div></div>`;
+            container.innerHTML = `<div class="empty-state"><div class="empty-symbol">⇄</div><div class="title">No Trades</div><div class="desc">${this.filter === 'all' ? 'Bot will record all trades here' : `No ${this.filter} trades found`}</div></div>`;
             return;
         }
 

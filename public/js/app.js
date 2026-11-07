@@ -6,17 +6,15 @@ const App = {
     botRunning: false,
 
     async init() {
-        // Initialize WebSocket
+        document.getElementById('todayLabel').textContent = new Intl.DateTimeFormat('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }).format(new Date()).toUpperCase();
+        // Give settings controls accessible names without changing their values.
+        document.querySelectorAll('.setting-row').forEach(row => {
+            const control = row.querySelector('input, select');
+            const label = row.querySelector('.setting-label');
+            if (control && label && !control.hasAttribute('aria-label')) control.setAttribute('aria-label', label.textContent.trim().replace(/\s+/g, ' '));
+        });
+        // Subscribe before network requests finish so the bot state is never delayed by market calls.
         WS.init();
-
-        // Initialize all modules
-        await Dashboard.init();
-        Market.init();
-        Trades.init();
-        Settings.init();
-
-        // Load initial bot status
-        this.loadBotStatus();
 
         // Setup WebSocket events
         WS.on('connected', () => {
@@ -28,6 +26,13 @@ const App = {
             Dashboard.updateBotStatus(data);
         });
 
+        Dashboard.init();
+        Market.init();
+        Trades.init();
+        Settings.init();
+        LearningUI.load();
+        setInterval(() => LearningUI.load(), 60000);
+        this.loadBotStatus();
         console.log('🤖 CryptoBOT Delta initialized');
     },
 
@@ -37,15 +42,25 @@ const App = {
         document.getElementById(`page-${page}`).classList.add('active');
 
         // Update nav
-        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-        document.querySelector(`.nav-item[data-page="${page}"]`).classList.add('active');
-
+        document.querySelectorAll('.nav-item').forEach(n => { n.classList.remove('active'); n.removeAttribute('aria-current'); });
+        const nav = document.querySelector(`.nav-item[data-page="${page}"]`);
+        nav.classList.add('active');
+        nav.setAttribute('aria-current', 'page');
+        const titles = { dashboard: 'Overview', market: 'Markets', strategies: 'Strategies', learning: 'Paper lab', trades: 'Trades', settings: 'Settings' };
+        document.getElementById('headerPage').textContent = titles[page] || page;
+        window.scrollTo(0, 0);
         this.currentPage = page;
 
         // Load data for page
         switch (page) {
             case 'dashboard':
                 Dashboard.loadDashboard();
+                break;
+            case 'strategies':
+                Dashboard.loadStrategies();
+                break;
+            case 'learning':
+                LearningUI.load();
                 break;
             case 'market':
                 Market.loadTickers();
@@ -76,11 +91,12 @@ const App = {
                 Dashboard.updateBotStatus({ running: false });
                 this.showToast('Bot stopped', 'info');
             } else {
-                // Start bot
+                // Starting the bot authorizes automated real orders until stopped.
+                if (!confirm('LIVE TRADING: This bot can place real orders using your exchange funds. You may lose all your capital, including through leverage. Starting authorizes automated trades until you stop it. Continue?')) return;
                 btn.disabled = true;
                 btnText.textContent = 'Starting...';
 
-                const res = await fetch('/api/bot/start', { method: 'POST' });
+                const res = await fetch('/api/bot/start', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ confirmLiveTrading: true }) });
                 const data = await res.json();
 
                 if (data.success) {

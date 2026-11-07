@@ -12,6 +12,9 @@ const db = require('../database');
 class BotEngine {
     constructor() {
         this.running = false;
+        this.startGeneration = 0;
+        this.starting = false;
+        this.scanInFlight = false;
         this.scanTimer = null;
         this.autoRefreshTimer = null;
         this.io = null;
@@ -95,9 +98,13 @@ class BotEngine {
     }
 
     async start() {
-        if (this.running) { this.log('warning', 'Bot is already running'); return; }
+        if (this.running || this.starting) { this.log('warning', 'Bot is already running or starting'); return; }
+        const generation = ++this.startGeneration;
+        this.starting = true;
         this.log('info', '🚀 Starting CryptoBOT...');
-        const initialized = await this.initialize();
+        let initialized;
+        try { initialized = await this.initialize(); } finally { this.starting = false; }
+        if (generation !== this.startGeneration) return;
         if (!initialized) { this.log('error', 'Failed to initialize. Check settings and try again.'); return; }
         this.running = true;
         this.scanCount = 0;
@@ -107,11 +114,13 @@ class BotEngine {
         // Sync Delta positions to DB BEFORE starting scans
         // This ensures manual/external positions are counted toward limits
         await this.syncDeltaPositionsToDb();
+        if (!this.running || generation !== this.startGeneration) return;
         this.startAutoRefresh();
         this.scanLoop();
     }
 
     stop() {
+        ++this.startGeneration;
         if (!this.running) { this.log('warning', 'Bot is not running'); return; }
         this.running = false;
         if (this.scanTimer) { clearTimeout(this.scanTimer); this.scanTimer = null; }
@@ -137,15 +146,22 @@ class BotEngine {
         this.log('info', `⏰ Auto-refresh set: Every ${minutes} minute(s)`);
     }
 
-    async scanLoop() {
-        if (!this.running) return;
-        try { await this.scan(); } 
-        catch (error) { this.log('error', `Scan error: ${error.message}`); }
+    async scanLoop(generation = this.startGeneration) {
+        if (!this.running || generation !== this.startGeneration) return;
+        if (!this.scanInFlight) {
+            this.scanInFlight = true;
+            try { await this.scan(generation); }
+            catch (error) { this.log('error', `Scan error: ${error.message}`); }
+            finally { this.scanInFlight = false; }
+        }
+        if (!this.running || generation !== this.startGeneration) return;
         const interval = parseInt(db.getSetting('scan_interval', this.scanInterval));
-        this.scanTimer = setTimeout(() => this.scanLoop(), interval);
+        // Refresh can request a scan while another is in flight: keep one timer only.
+        if (this.scanTimer) clearTimeout(this.scanTimer);
+        this.scanTimer = setTimeout(() => { this.scanTimer = null; this.scanLoop(generation); }, interval);
     }
 
-    async scan() {
+    async scan(generation = this.startGeneration) {
         this.scanCount++;
         this.tradesPlacedThisScan = 0;
         this._lastScanTimestamp = Date.now(); // Fresh research timestamp
@@ -190,8 +206,8 @@ class BotEngine {
 
         // Analyze ALL tickers
         for (const ticker of filteredTickers) {
-            if (!this.running) break;
-            try { await this.analyzeTicker(ticker, balance, stats, settings); } 
+            if (!this.running || generation !== this.startGeneration) break;
+            try { await this.analyzeTicker(ticker, balance, stats, settings, generation); }
             catch (error) { /* skip individual errors */ }
             await this.sleep(300);
         }
@@ -229,7 +245,7 @@ class BotEngine {
         return { allowed: true };
     }
 
-    async analyzeTicker(ticker, balance, stats, settings) {
+    async analyzeTicker(ticker, balance, stats, settings, generation = this.startGeneration) {
         const symbol = ticker.symbol;
         const price = parseFloat(ticker.mark_price || ticker.close || 0);
         if (price <= 0) return;
@@ -276,12 +292,14 @@ class BotEngine {
             bid: parseFloat(ticker.bid || 0),
             ask: parseFloat(ticker.ask || 0),
             currentPrice: price,
+            fundingRate: ticker.funding_rate == null || ticker.funding_rate === '' ? null : Number(ticker.funding_rate),
             fetchedAt: new Date().toISOString() // Proof of fresh data
         };
 
         // Run strategy
         const signal = strategyManager.analyze(marketData);
         if (signal.signal === 'none') { stats.noSignal++; return; }
+        if (require('./learning').blocks(signal, { symbol, strategy: strategyManager.getActiveStrategy().id, strategyName: strategyManager.getActiveStrategy().name })) { stats.noSignal++; return; }
 
         stats.signalsFound++;
         const strategyName = signal.strategy || strategyManager.getActiveStrategy().name;
@@ -306,11 +324,12 @@ class BotEngine {
             return;
         }
 
-        const traded = await this.executeTrade(symbol, signal, price, balance, ticker, strategyName, validation, marketData);
+        if (!this.running || generation !== this.startGeneration) return;
+        const traded = await this.executeTrade(symbol, signal, price, balance, ticker, strategyName, validation, marketData, generation);
         if (traded) stats.tradesPlaced++;
     }
 
-    async executeTrade(symbol, signal, price, balance, ticker, strategyName, validation, marketData) {
+    async executeTrade(symbol, signal, price, balance, ticker, strategyName, validation, marketData, generation = this.startGeneration) {
         const settings = riskManager.getSettings();
         const sym = settings.currency === 'INR' ? '₹' : (settings.currency === 'BTC' ? '₿' : '$');
 
@@ -385,6 +404,7 @@ class BotEngine {
         const humanReason = this.buildHumanReadableReason(tradeReasoning);
 
         // === STEP 1: Place OPENING order (market) with SL only (no bracket TP) ===
+        if (!this.running || generation !== this.startGeneration) return false;
         try {
             this.log('trade', `📝 OPENING ORDER: ${signal.side.toUpperCase()} ${symbol} | Qty: ${quantity} | ~${price} | SL: ${exits.stopLoss} (-${settings.stopLossPercent}%) | By: ${strategyName} | WHY: ${signal.reason}`);
 
