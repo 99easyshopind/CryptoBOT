@@ -24,6 +24,7 @@ const VolumeProfileStrategy = require('./volume-profile');
 const ElliottWaveStrategy = require('./elliott-wave');
 // Multi AI (must be loaded last — uses all other strategies)
 const MultiAIStrategy = require('./multi-ai');
+const MasterAI = require('./master-ai');
 
 class StrategyManager {
     constructor() {
@@ -82,6 +83,7 @@ class StrategyManager {
             orderFlow, multiTF, wyckoff, volumeProfile, elliottWave];
         const multiAI = new MultiAIStrategy(allStrategies);
         this.strategies.set(multiAI.id, multiAI);
+        this.strategies.set('master-ai', new MasterAI(multiAI));
 
         // Default to Multi AI
         this.activeStrategy = multiAI;

@@ -2,28 +2,31 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="CryptoBOT Delta - Professional automated trading bot for Delta Exchange India. Advanced strategies, risk management, and real-time market data.">
     <meta name="theme-color" content="#040507">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>CryptoBOT Delta | Automated Trading Bot</title>
     <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/workspace.css">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>">
 </head>
 <body>
+<svg class="icon-defs" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><symbol id="i-overview" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></symbol><symbol id="i-market" viewBox="0 0 24 24"><path d="M3 17l5-5 4 3 8-9"/><path d="M15 6h5v5"/></symbol><symbol id="i-strategy" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></symbol><symbol id="i-learning" viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M8 15c0-2-3-3-3-7a7 7 0 0114 0c0 4-3 5-3 7z"/></symbol><symbol id="i-trades" viewBox="0 0 24 24"><path d="M4 7h15M15 3l4 4-4 4M20 17H5m4-4l-4 4 4 4"/></symbol><symbol id="i-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a2 2 0 00.4 2.2l.1.1-1.6 2.8-.2-.1a2 2 0 00-2.1.7l-.1.3h-3.3l-.1-.3a2 2 0 00-2.1-.7l-.2.1-1.6-2.8.1-.1A2 2 0 009 15l-.3-.1v-3.3l.3-.1a2 2 0 00-.4-2.2l-.1-.1 1.6-2.8.2.1a2 2 0 002.1-.7l.1-.3h3.3l.1.3a2 2 0 002.1.7l.2-.1 1.6 2.8-.1.1a2 2 0 00-.4 2.2l.3.1v3.3z" transform="translate(-2 -1)"/></symbol><symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M14 7l5 5-5 5"/></symbol></svg>
 
 <div id="app">
 
     <!-- ========== TOP HEADER ========== -->
     <header class="top-header" id="topHeader">
         <div class="header-left">
-            <div class="header-logo">C</div>
+            <div class="header-logo"><span>◈</span></div>
             <div class="header-title">
-                <h1>CryptoBOT</h1>
-                <span>Delta Exchange India</span>
+                <h1>Crypto<span>BOT</span></h1>
+                <span>TRADING WORKSPACE</span>
             </div>
         </div>
+        <div class="header-context"><span>WORKSPACE</span><b>/</b><strong id="headerPage">Overview</strong></div>
         <div class="header-right">
             <div class="status-indicator offline" id="apiStatus">
                 <span class="dot"></span>
@@ -31,7 +34,7 @@
             </div>
             <button class="btn-bot-toggle start" id="btnBotToggle" onclick="App.toggleBot()">
                 <span class="pulse-dot"></span>
-                <span id="btnBotText">START</span>
+                <span id="btnBotText">Start bot</span>
             </button>
         </div>
     </header>
@@ -41,49 +44,71 @@
 
         <!-- ===== DASHBOARD PAGE ===== -->
         <div class="page active" id="page-dashboard">
+            <div class="page-heading"><div><div class="eyebrow">YOUR TRADING WORKSPACE <span></span> <span id="todayLabel"></span></div><h2>Overview<span class="heading-dot">.</span></h2><p>A clear view of your bot, account and activity.</p></div><div class="heading-aside"><span class="aside-dot"></span> DELTA EXCHANGE INDIA</div></div>
+            <div class="overview-hero"><div class="hero-copy"><span class="hero-kicker">THE BIG PICTURE</span><h3>Your command center<br><em>for smarter trading.</em></h3><p>Monitor your performance, refine your strategy, and keep your risk in check — all in one place.</p><div class="hero-actions"><button onclick="App.navigate('strategies')">Explore strategies <svg><use href="#i-arrow"/></svg></button><button class="hero-link" onclick="App.navigate('learning')">Open paper lab <span>↗</span></button></div></div><div class="hero-visual" aria-hidden="true"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="orbit orbit-three"></div><div class="orbit-core">◈</div><i class="orbit-point point-one"></i><i class="orbit-point point-two"></i><span class="visual-caption">ALWAYS IN CONTROL <b>✳</b></span></div></div>
+            <div class="section-heading"><div><span class="section-kicker">ACCOUNT SNAPSHOT</span><h3>Performance at a glance</h3></div><span class="section-hint">Your latest account data</span></div>
             
             <!-- Stats Grid -->
             <div class="stats-grid" id="dashboardStats">
                 <div class="stat-card">
-                    <div class="stat-label">💰 Balance</div>
-                    <div class="stat-value" id="statBalance">₹0</div>
-                    <div class="stat-sub" id="statCurrency">INR</div>
+                    <div class="stat-label">Account balance</div>
+                    <div class="stat-value" id="statBalance">—</div>
+                    <div class="stat-sub" id="statCurrency">Loading balance…</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-label">📊 P&L</div>
+                    <div class="stat-label">Total P&amp;L</div>
                     <div class="stat-value" id="statPnl">₹0</div>
-                    <div class="stat-sub">Today</div>
+                    <div class="stat-sub">Closed trades</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-label">🏆 Win Rate</div>
+                    <div class="stat-label">Win rate</div>
                     <div class="stat-value" id="statWinRate">0%</div>
                     <div class="stat-sub" id="statTradeCount">0 trades</div>
                 </div>
-            </div>
 
             <!-- Additional Info -->
-            <div class="stats-grid">
                 <div class="stat-card">
-                    <div class="stat-label">📈 Trades</div>
+                    <div class="stat-label">Total trades</div>
                     <div class="stat-value" id="statTotalTrades">0</div>
                     <div class="stat-sub">By BOT</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-label">🔒 Min Bal</div>
+                    <div class="stat-label">Min. balance</div>
                     <div class="stat-value" id="statMinBalance">₹0</div>
                     <div class="stat-sub">Reserved</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-label">📐 Price Range</div>
-                    <div class="stat-value" id="statPriceRange" style="font-size:12px">-</div>
+                    <div class="stat-label">Price range</div>
+                    <div class="stat-value" id="statPriceRange">-</div>
                     <div class="stat-sub">Min - Max</div>
                 </div>
             </div>
 
-            <!-- Strategy Selection -->
-            <div class="card">
+            <div class="overview-lower">
+            <!-- Bot Activity Log -->
+            <div class="card activity-card">
                 <div class="card-header">
-                    <div class="card-title">🎯 Strategy</div>
+                    <div><div class="card-title">Recent activity</div><p class="card-description">A live record of your bot’s actions.</p></div>
+                    <button class="btn btn-sm btn-secondary" onclick="Dashboard.clearLogs()">Clear</button>
+                </div>
+                <div class="log-container" id="logContainer">
+                    <div class="empty-state">
+                        <div class="empty-symbol">⌁</div>
+                        <div class="title">No Activity Yet</div>
+                        <div class="desc">Start the bot to see live activity logs</div>
+                    </div>
+                </div>
+            </div>
+            <aside class="card workspace-card"><div class="card-title">Make your next move</div><p class="card-description">Everything you need to get started.</p><button onclick="App.navigate('strategies')"><span class="shortcut-icon"><svg><use href="#i-strategy"/></svg></span><span><strong>Choose a strategy</strong><small>Explore the strategy library</small></span><b>↗</b></button><button onclick="App.navigate('learning')"><span class="shortcut-icon mint"><svg><use href="#i-learning"/></svg></span><span><strong>Try paper learning</strong><small>Explore simulated results</small></span><b>↗</b></button><button onclick="App.navigate('settings')"><span class="shortcut-icon peach"><svg><use href="#i-settings"/></svg></span><span><strong>Review your settings</strong><small>Manage connection and risk</small></span><b>↗</b></button><div class="workspace-note"><span>✳</span><p><strong>Trade thoughtfully.</strong><br>Live trading involves real risk. Review your settings before starting the bot.</p></div></aside>
+            </div>
+        </div>
+
+        <!-- ===== STRATEGIES PAGE ===== -->
+        <div class="page" id="page-strategies"><div class="page-heading"><div><div class="eyebrow">BUILD YOUR APPROACH</div><h2>Strategies<span class="heading-dot">.</span></h2><p>Find a methodology that fits your trading style.</p></div></div>
+            <!-- Strategy Selection -->
+            <div class="card strategy-panel">
+                <div class="card-header">
+                    <div><div class="card-title">Strategy library</div><p class="card-description">Select the methodology used for scanning and paper learning.</p></div>
                     <span class="strategy-badge badge-winrate" id="activeStrategyBadge">--</span>
                 </div>
                 <div class="strategy-list" id="strategyList">
@@ -91,53 +116,61 @@
                 </div>
             </div>
 
-            <!-- Bot Activity Log -->
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-title">📋 Bot Activity</div>
-                    <button class="btn btn-sm btn-secondary" onclick="Dashboard.clearLogs()">Clear</button>
-                </div>
-                <div class="log-container" id="logContainer">
-                    <div class="empty-state">
-                        <div class="icon">📋</div>
-                        <div class="title">No Activity Yet</div>
-                        <div class="desc">Start the bot to see live activity logs</div>
-                    </div>
-                </div>
+        </div>
+
+        <!-- ===== PAPER LEARNING PAGE ===== -->
+        <div class="page" id="page-learning"><div class="page-heading"><div><div class="eyebrow">EXPLORE &amp; REFINE</div><h2>Paper lab<span class="heading-dot">.</span></h2><p>Turn observations into ideas, without placing live orders.</p></div></div>
+            <div class="learning-layout">
+                <section class="card learning-intro">
+                    <div class="section-kicker"><span class="kicker-dot"></span> SIMULATION ENVIRONMENT</div>
+                    <h2>Learn without placing orders.</h2>
+                    <p>Simulates BTCUSD using current data and the selected strategy. No exchange orders are placed. Results exclude fees, funding, slippage and risk controls.</p>
+                    <div class="learning-actions"><button class="btn btn-primary" onclick="LearningUI.action('start')">Start learning</button><button class="btn btn-secondary" onclick="LearningUI.action('stop')">Stop learning</button><button class="btn btn-secondary" onclick="LearningUI.load()">Refresh results</button></div>
+                    <div class="learning-status" id="learningStatus" role="status">Loading learning status…</div>
+                </section>
+                <section class="card learning-results">
+                    <div class="card-header"><div><div class="card-title">Learnings &amp; verification</div><p class="card-description">Review proposed filters and their forward paper observations.</p></div><span class="soft-badge">EXPERIMENTAL</span></div>
+                    <div class="notice"><strong>Before you implement</strong> These experimental rules also filter matching live trades. Observations are not proof of profitability.</div>
+                    <div class="learning-actions learning-rule-actions"><button class="btn btn-primary" onclick="LearningUI.update('implement', false)">Implement selected</button><button class="btn btn-secondary" onclick="LearningUI.update('implement', true)">Implement all proposed</button><button class="btn btn-danger" onclick="LearningUI.update('delete', false)">Remove selected implemented</button></div>
+                    <div id="learningList" class="learning-list"></div>
+                </section>
+                <section class="card paper-panel"><div class="card-header"><div><div class="card-title">Paper observations</div><p class="card-description">A record of simulated and blocked shadow signals.</p></div><span class="soft-badge">PAPER ONLY</span></div><div id="paperTrades"></div></section>
             </div>
         </div>
 
         <!-- ===== MARKET PAGE ===== -->
         <div class="page" id="page-market">
+            <div class="page-heading"><div><div class="eyebrow">MARKET INTELLIGENCE</div><h2>Markets<span class="heading-dot">.</span></h2><p>Explore the latest available prices and market activity.</p></div><span class="heading-aside"><span class="aside-dot"></span> MARKET DATA</span></div>
             <div class="market-sticky-header">
                 <div class="search-box">
-                    <span class="search-icon">🔍</span>
-                    <input type="text" id="marketSearch" placeholder="Search crypto..." oninput="Market.search(this.value)">
+                    <span class="search-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4 4"/></svg></span>
+                    <input type="text" id="marketSearch" aria-label="Search markets" placeholder="Search crypto..." oninput="Market.search(this.value)">
                 </div>
 
                 <div class="market-tabs" id="marketTabs">
                     <button class="market-tab active" data-filter="all" onclick="Market.setFilter('all', this)">All</button>
-                    <button class="market-tab" data-filter="trending" onclick="Market.setFilter('trending', this)">🔥 Trending</button>
-                    <button class="market-tab" data-filter="gainers" onclick="Market.setFilter('gainers', this)">📈 Top Gainers</button>
-                    <button class="market-tab" data-filter="losers" onclick="Market.setFilter('losers', this)">📉 Top Losers</button>
-                    <button class="market-tab" data-filter="volume" onclick="Market.setFilter('volume', this)">📊 Active (Vol)</button>
-                    <button class="market-tab" data-filter="value" onclick="Market.setFilter('value', this)">💰 Active (Val)</button>
-                    <button class="market-tab" data-filter="52high" onclick="Market.setFilter('52high', this)">🔝 52W High</button>
-                    <button class="market-tab" data-filter="52low" onclick="Market.setFilter('52low', this)">🔻 52W Low</button>
+                    <button class="market-tab" data-filter="trending" onclick="Market.setFilter('trending', this)">Trending</button>
+                    <button class="market-tab" data-filter="gainers" onclick="Market.setFilter('gainers', this)">Top Gainers</button>
+                    <button class="market-tab" data-filter="losers" onclick="Market.setFilter('losers', this)">Top Losers</button>
+                    <button class="market-tab" data-filter="volume" onclick="Market.setFilter('volume', this)">Active (Vol)</button>
+                    <button class="market-tab" data-filter="value" onclick="Market.setFilter('value', this)">Active (Val)</button>
+                    <button class="market-tab" data-filter="52high" onclick="Market.setFilter('52high', this)">Near high</button>
+                    <button class="market-tab" data-filter="52low" onclick="Market.setFilter('52low', this)">Near low</button>
                 </div>
             </div>
 
             <div class="market-list" id="marketList">
                 <div class="empty-state">
-                    <div class="icon">📊</div>
+                    <div class="empty-symbol">◇</div>
                     <div class="title">Loading Market Data...</div>
-                    <div class="desc">Connect your API to see live prices</div>
+                    <div class="desc">Fetching available market prices</div>
                 </div>
             </div>
         </div>
 
         <!-- ===== TRADES PAGE ===== -->
         <div class="page" id="page-trades">
+            <div class="page-heading"><div><div class="eyebrow">YOUR TRACK RECORD</div><h2>Trades<span class="heading-dot">.</span></h2><p>Review your positions, results and trade reasoning.</p></div></div>
             <div class="trades-summary" id="tradesSummary">
                 <div class="trade-stat">
                     <div class="label">Total</div>
@@ -164,23 +197,23 @@
             <!-- Filter Tabs -->
             <div class="trade-filter-tabs">
                 <button class="trade-filter-tab active" onclick="Trades.setFilter('all', this)">All</button>
-                <button class="trade-filter-tab" onclick="Trades.setFilter('open', this)">🔵 Open</button>
+                <button class="trade-filter-tab" onclick="Trades.setFilter('open', this)">Open</button>
                 <button class="trade-filter-tab" onclick="Trades.setFilter('closed', this)">Closed</button>
-                <button class="trade-filter-tab" onclick="Trades.setFilter('wins', this)">🟢 Wins</button>
-                <button class="trade-filter-tab" onclick="Trades.setFilter('losses', this)">🔴 Losses</button>
+                <button class="trade-filter-tab" onclick="Trades.setFilter('wins', this)">Wins</button>
+                <button class="trade-filter-tab" onclick="Trades.setFilter('losses', this)">Losses</button>
             </div>
 
             <div class="trade-history">
                 <div class="trade-history-header">
-                    <span class="trade-history-title">📜 Trade History</span>
+                    <span class="trade-history-title">Trade history</span>
                     <div style="display:flex;gap:6px;">
-                        <button class="btn-export" onclick="Trades.exportCSV()">📥 Export CSV</button>
-                        <button class="btn-clear" id="btnClearHistory" onclick="Trades.clearHistory()">🗑 Clear</button>
+                        <button class="btn-export" onclick="Trades.exportCSV()">Export CSV</button>
+                        <button class="btn-clear" id="btnClearHistory" onclick="Trades.clearHistory()">Clear</button>
                     </div>
                 </div>
                 <div class="trade-list" id="tradeList">
                     <div class="empty-state">
-                        <div class="icon">📊</div>
+                        <div class="empty-symbol">◇</div>
                         <div class="title">No Trades Yet</div>
                         <div class="desc">Bot will record all trades here with detailed reasoning</div>
                     </div>
@@ -190,10 +223,12 @@
 
         <!-- ===== SETTINGS PAGE ===== -->
         <div class="page" id="page-settings">
+            <div class="page-heading"><div><div class="eyebrow">YOUR CONFIGURATION</div><h2>Settings<span class="heading-dot">.</span></h2><p>Manage your exchange connection, trading preferences and risk.</p></div></div>
+            <div class="settings-grid">
 
             <!-- API Configuration -->
             <div class="card settings-section">
-                <div class="settings-section-title">🔑 API Configuration</div>
+                <div class="settings-section-title">API configuration</div>
                 
                 <div class="setting-row">
                     <span class="setting-label">
@@ -222,22 +257,22 @@
                 </div>
 
                 <div style="margin-top:10px; display:flex; gap:8px;">
-                    <button class="btn btn-primary btn-sm" onclick="Settings.saveApi()">💾 Save Keys</button>
-                    <button class="btn btn-secondary btn-sm" onclick="Settings.testConnection()">🔌 Test Connection</button>
+                    <button class="btn btn-primary btn-sm" onclick="Settings.saveApi()">Save Keys</button>
+                    <button class="btn btn-secondary btn-sm" onclick="Settings.testConnection()">Test Connection</button>
                 </div>
             </div>
 
             <!-- Trading Configuration -->
             <div class="card settings-section">
-                <div class="settings-section-title">⚙️ Trading Configuration</div>
+                <div class="settings-section-title">Trading configuration</div>
 
                 <div class="setting-row">
                     <span class="setting-label">Trading Currency</span>
                     <select class="select-field" id="settingCurrency" onchange="Settings.fetchBalance(this.value)">
-                        <option value="INR">🇮🇳 INR</option>
-                        <option value="USD">🇺🇸 USD</option>
-                        <option value="USDT">💲 USDT</option>
-                        <option value="BTC">₿ BTC</option>
+                        <option value="INR">INR</option>
+                        <option value="USD">USD</option>
+                        <option value="USDT">USDT</option>
+                        <option value="BTC">BTC</option>
                     </select>
                 </div>
 
@@ -301,7 +336,7 @@
 
             <!-- Risk Management -->
             <div class="card settings-section">
-                <div class="settings-section-title">🛡️ Risk Management</div>
+                <div class="settings-section-title">Risk management</div>
 
                 <div class="setting-row">
                     <span class="setting-label">Stop Loss %</span>
@@ -368,18 +403,18 @@
             </div>
 
             <!-- SAVE ALL BUTTON -->
-            <div style="padding: 0 0 16px;">
-                <button class="btn btn-primary" style="width:100%; padding:14px; font-size:16px; font-weight:700; border-radius:12px;" onclick="Settings.saveAllSettings()">💾 SAVE ALL SETTINGS</button>
+            <div class="settings-save">
+                <button class="btn btn-primary" style="width:100%; padding:14px; font-size:16px; font-weight:700; border-radius:12px;" onclick="Settings.saveAllSettings()">SAVE ALL SETTINGS</button>
             </div>
 
             <!-- Position Sync -->
             <div class="card settings-section">
-                <div class="settings-section-title">🔄 Position Sync & Refresh</div>
+                <div class="settings-section-title">Position sync & refresh</div>
 
                 <!-- Delta Exchange Positions (Actual Exchange Data) -->
                 <div style="margin-bottom:12px;">
                     <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-                        <span style="font-size:14px; font-weight:700; color:var(--accent-cyan);">📡 Delta Exchange Positions</span>
+                        <span style="font-size:14px; font-weight:700; color:var(--accent-cyan);">Delta Exchange Positions</span>
                         <span id="syncDeltaCount" style="font-size:12px; padding:2px 8px; border-radius:12px; background:rgba(0,200,255,0.12); color:var(--accent-cyan);">--</span>
                     </div>
                     <div id="syncDeltaPositions" style="margin:4px 0;">
@@ -392,7 +427,7 @@
                 <!-- Bot Positions (DB Tracked) -->
                 <div style="margin-bottom:12px;">
                     <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-                        <span style="font-size:14px; font-weight:700; color:var(--accent-yellow);">🤖 Bot Positions (DB)</span>
+                        <span style="font-size:14px; font-weight:700; color:var(--accent-yellow);">Bot Positions (DB)</span>
                         <span id="syncOpenCount" style="font-size:12px; padding:2px 8px; border-radius:12px; background:rgba(255,200,0,0.12); color:var(--accent-yellow);">--</span>
                     </div>
                     <div id="syncTradesList" style="margin:4px 0;">
@@ -404,7 +439,7 @@
 
                 <!-- Balance Info -->
                 <div id="syncBalanceInfo" style="margin-bottom:12px; display:none;">
-                    <div style="font-size:13px; font-weight:600; color:var(--accent-green); margin-bottom:6px;">💰 Account Balance</div>
+                    <div style="font-size:13px; font-weight:600; color:var(--accent-green); margin-bottom:6px;">Account Balance</div>
                     <div id="syncBalanceDetails" style="font-size:12px; color:var(--text-secondary);"></div>
                 </div>
 
@@ -425,7 +460,7 @@
                 </div>
 
                 <div style="margin-top:10px; display:flex; gap:8px;">
-                    <button class="btn btn-primary btn-sm" onclick="Settings.refreshPositions()" id="btnRefreshPositions" style="flex:1; padding:12px; font-size:14px; font-weight:700;">🔄 Refresh Now</button>
+                    <button class="btn btn-primary btn-sm" onclick="Settings.refreshPositions()" id="btnRefreshPositions" style="flex:1; padding:12px; font-size:14px; font-weight:700;">Refresh Now</button>
                 </div>
 
                 <div id="syncResult" style="margin-top:10px; padding:8px; border-radius:8px; display:none; font-size:12px;"></div>
@@ -433,7 +468,7 @@
 
             <!-- Bot Information -->
             <div class="card settings-section">
-                <div class="settings-section-title">ℹ️ Bot Information</div>
+                <div class="settings-section-title">Bot information</div>
 
                 <div class="info-row">
                     <span class="info-label">Bot Version</span>
@@ -457,33 +492,38 @@
                     <span class="info-label">IPv6</span>
                     <div class="ipv6-container">
                         <span class="ipv6-address" id="infoIpv6">Loading...</span>
-                        <button class="btn-copy" id="btnCopyIpv6" onclick="Settings.copyIpv6()">📋 Copy</button>
+                        <button class="btn-copy" id="btnCopyIpv6" onclick="Settings.copyIpv6()">Copy</button>
                     </div>
                 </div>
             </div>
 
+            </div>
         </div>
 
     </main>
 
     <!-- ========== BOTTOM NAVIGATION ========== -->
-    <nav class="bottom-nav" id="bottomNav">
-        <button class="nav-item active" data-page="dashboard" onclick="App.navigate('dashboard')">
-            <span class="nav-icon">🏠</span>
-            <span class="nav-label">Home</span>
+    <nav class="bottom-nav" id="bottomNav" aria-label="Main navigation">
+        <div class="nav-section-label">WORKSPACE</div>
+        <button class="nav-item active" data-page="dashboard" onclick="App.navigate('dashboard')" aria-current="page">
+            <svg class="nav-icon" aria-hidden="true"><use href="#i-overview"/></svg><span class="nav-label">Overview</span>
         </button>
-        <button class="nav-item" data-page="market" onclick="App.navigate('market')">
-            <span class="nav-icon">📈</span>
-            <span class="nav-label">Market</span>
+        <button class="nav-item" data-page="market" onclick="App.navigate('market')" >
+            <svg class="nav-icon" aria-hidden="true"><use href="#i-market"/></svg><span class="nav-label">Markets</span>
         </button>
-        <button class="nav-item" data-page="trades" onclick="App.navigate('trades')">
-            <span class="nav-icon">📊</span>
-            <span class="nav-label">Trades</span>
+        <button class="nav-item" data-page="strategies" onclick="App.navigate('strategies')" >
+            <svg class="nav-icon" aria-hidden="true"><use href="#i-strategy"/></svg><span class="nav-label">Strategies</span>
         </button>
-        <button class="nav-item" data-page="settings" onclick="App.navigate('settings')">
-            <span class="nav-icon">⚙️</span>
-            <span class="nav-label">Settings</span>
+        <button class="nav-item" data-page="learning" onclick="App.navigate('learning')" >
+            <svg class="nav-icon" aria-hidden="true"><use href="#i-learning"/></svg><span class="nav-label">Paper lab</span><span class="nav-tag">SIM</span>
         </button>
+        <button class="nav-item" data-page="trades" onclick="App.navigate('trades')" >
+            <svg class="nav-icon" aria-hidden="true"><use href="#i-trades"/></svg><span class="nav-label">Trades</span>
+        </button>
+        <button class="nav-item" data-page="settings" onclick="App.navigate('settings')" >
+            <svg class="nav-icon" aria-hidden="true"><use href="#i-settings"/></svg><span class="nav-label">Settings</span>
+        </button>
+        <div class="nav-footer"><div class="nav-footer-icon">✳</div><div><strong>Stay in control</strong><span>Trade with a plan.</span></div></div>
     </nav>
 
 </div>
@@ -497,6 +537,7 @@
 <script src="js/market.js"></script>
 <script src="js/trades.js"></script>
 <script src="js/settings.js"></script>
+<script src="js/learning.js"></script>
 <script src="js/app.js"></script>
 
 </body>

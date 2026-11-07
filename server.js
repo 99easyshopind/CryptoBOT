@@ -59,6 +59,8 @@ async function startServer() {
     const deltaApi = require('./bot/delta-api');
     const strategyManager = require('./bot/strategies');
     const riskManager = require('./bot/risk-manager');
+    const learning = require('./bot/learning');
+    try { strategyManager.setActiveStrategy(db.getSetting('active_strategy', 'multi-ai')); } catch (_) { strategyManager.setActiveStrategy('multi-ai'); }
 
     const app = express();
     const server = http.createServer(app);
@@ -81,8 +83,9 @@ async function startServer() {
     // --- Bot Control ---
     app.post('/api/bot/start', async (req, res) => {
         try {
+            if (req.body?.confirmLiveTrading !== true) return res.status(400).json({ success: false, error: 'Explicit live trading acknowledgement required.' });
             await botEngine.start();
-            res.json({ success: true, status: botEngine.getStatus() });
+            res.json({ success: botEngine.running, status: botEngine.getStatus(), error: botEngine.running ? undefined : 'Bot did not start; check logs and settings.' });
         } catch (error) {
             res.status(500).json({ success: false, error: error.message });
         }
@@ -95,6 +98,15 @@ async function startServer() {
 
     app.get('/api/bot/status', (req, res) => {
         res.json(botEngine.getStatus());
+    });
+
+    // Paper learning never places exchange orders.
+    app.get('/api/learning', (req, res) => res.json(learning.status()));
+    app.post('/api/learning/start', (req, res) => { learning.start(); res.json(learning.status()); });
+    app.post('/api/learning/stop', (req, res) => { learning.stop(); res.json(learning.status()); });
+    app.post('/api/learning/:action', (req, res) => {
+        try { learning.update(req.body.ids, req.params.action); if (req.params.action === 'implement') learning.start(); res.json(learning.status()); }
+        catch (e) { res.status(400).json({ error: e.message }); }
     });
 
     // Manual position refresh — reconcile DB with Delta Exchange
@@ -115,6 +127,7 @@ async function startServer() {
             const settings = riskManager.getSettings();
             const openTrades = db.getOpenTrades();
 
+            let balanceAvailable = false;
             let balance = { available: 0, balance: 0, walletBalance: 0, totalBalance: 0, marginUsed: 0, locked: 0, unrealizedPnl: 0 };
             try {
                 const apiKey = db.getEncryptedSetting('api_key');
@@ -122,6 +135,7 @@ async function startServer() {
                 if (apiKey && apiSecret) {
                     deltaApi.setCredentials(apiKey, apiSecret);
                     balance = await deltaApi.getBalance(settings.currency);
+                    balanceAvailable = true;
                 }
             } catch (e) { }
 
@@ -133,6 +147,7 @@ async function startServer() {
 
             res.json({
                 balance,
+                balanceAvailable,
                 stats,
                 dailyStats,
                 budgetInfo,

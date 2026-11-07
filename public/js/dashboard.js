@@ -9,10 +9,10 @@ const Dashboard = {
     exchangeRate: 94, // USD to INR (updated from API)
 
     async init() {
-        await this.fetchExchangeRate();
-        await this.loadDashboard();
-        await this.loadStrategies();
         this.setupWebSocket();
+        this.fetchExchangeRate();
+        this.loadDashboard();
+        this.loadStrategies();
         // Auto-refresh every 30 seconds
         this.refreshTimer = setInterval(() => this.loadDashboard(), 30000);
     },
@@ -60,11 +60,13 @@ const Dashboard = {
             const displayBalance = this.convertToDisplay(walletBal, assetFrom, displayCurrency);
 
             const balEl = document.getElementById('statBalance');
-            balEl.textContent = `${sym}${this.formatNumber(displayBalance)}`;
+            balEl.textContent = data.balanceAvailable === false ? '—' : `${sym}${this.formatNumber(displayBalance)}`;
 
             // Show asset info in sub-label
             const curEl = document.getElementById('statCurrency');
-            if (equity !== walletBal && equity > 0) {
+            if (data.balanceAvailable === false) {
+                curEl.textContent = 'Balance unavailable';
+            } else if (equity !== walletBal && equity > 0) {
                 curEl.textContent = `${displayCurrency} (Equity: ${sym}${this.formatNumber(this.convertToDisplay(equity, assetFrom, displayCurrency))})`;
             } else {
                 curEl.textContent = displayCurrency;
@@ -141,22 +143,22 @@ const Dashboard = {
         container.innerHTML = this.strategies.map(s => {
             const isActive = s.active;
             if (isActive) {
-                document.getElementById('activeStrategyBadge').textContent = `Win: ${s.winRate}%`;
+                document.getElementById('activeStrategyBadge').textContent = s.winRate === 'N/A' ? 'Win rate: unknown' : `Win: ${s.winRate}%`;
             }
             const riskClass = s.riskLevel.toLowerCase();
             return `
-                <div class="strategy-card ${isActive ? 'active' : ''}" onclick="Dashboard.selectStrategy('${s.id}')" id="strategy-${s.id}">
+                <button type="button" class="strategy-card ${isActive ? 'active' : ''}" onclick="Dashboard.selectStrategy('${s.id}')" id="strategy-${s.id}" aria-pressed="${isActive}">
                     <div class="strategy-radio"></div>
                     <div class="strategy-info">
-                        <div class="strategy-name">${s.id === 'multi-ai' ? '🧠 ' : ''}${s.name}</div>
+                        <div class="strategy-name">${s.name}</div>
                         <div class="strategy-desc">${s.description}</div>
                         <div class="strategy-meta">
-                            <span class="strategy-badge badge-winrate">📊 ${s.winRate}% Win</span>
-                            <span class="strategy-badge badge-timeframe">⏱ ${s.timeframe}</span>
-                            <span class="strategy-badge badge-${riskClass}">${this.getRiskIcon(s.riskLevel)} ${s.riskLevel}</span>
+                            <span class="strategy-badge badge-winrate">${s.winRate === 'N/A' ? 'Win rate unknown' : s.winRate + '% Win'}</span>
+                            <span class="strategy-badge badge-timeframe">${s.timeframe}</span>
+                            <span class="strategy-badge badge-${riskClass}">${s.riskLevel}</span>
                         </div>
                     </div>
-                </div>`;
+                </button>`;
         }).join('');
     },
 
@@ -193,12 +195,12 @@ const Dashboard = {
         const statusText = document.getElementById('apiStatusText');
         if (status.running) {
             btn.className = 'btn-bot-toggle stop';
-            btnText.textContent = 'STOP';
+            btnText.textContent = 'Stop bot';
             indicator.className = 'status-indicator online';
             statusText.textContent = 'Running';
         } else {
             btn.className = 'btn-bot-toggle start';
-            btnText.textContent = 'START';
+            btnText.textContent = 'Start bot';
             indicator.className = 'status-indicator offline';
             statusText.textContent = 'Stopped';
         }
@@ -213,13 +215,13 @@ const Dashboard = {
     renderLogs() {
         const container = document.getElementById('logContainer');
         if (this.logs.length === 0) {
-            container.innerHTML = `<div class="empty-state"><div class="icon">📋</div><div class="title">No Activity Yet</div><div class="desc">Start the bot to see live activity</div></div>`;
+            container.innerHTML = `<div class="empty-state"><div class="empty-symbol">⌁</div><div class="title">No activity yet</div><div class="desc">Start the bot to see live activity</div></div>`;
             return;
         }
-        const icons = { info: 'ℹ️', success: '✅', warning: '⚠️', error: '❌', trade: '💰', signal: '📊' };
+        const icons = { info: 'i', success: '✓', warning: '!', error: '×', trade: '↗', signal: '⌁' };
         container.innerHTML = this.logs.map(log => {
             const time = new Date(log.timestamp || log.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
-            return `<div class="log-entry ${log.level}"><span class="log-time">${time}</span><span class="log-icon">${icons[log.level] || '📋'}</span><span class="log-message">${log.message}</span></div>`;
+            return `<div class="log-entry ${log.level}"><span class="log-time">${time}</span><span class="log-icon">${icons[log.level] || '·'}</span><span class="log-message">${log.message}</span></div>`;
         }).join('');
     },
 
